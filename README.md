@@ -82,7 +82,7 @@ streaming-platform/
 ## 🎯 Usage
 
 1. 🚀 Launch the application
-2. 🔍 Search for your favorite anime
+2. 🔍 Search for your favorite content
 3. 📋 Browse the episode list
 4. ▶️ Click to start watching
 
@@ -92,7 +92,6 @@ This project serves as a practical demonstration of:
 
 - Web scraping techniques
 - Streaming platform architecture
-- Modern frontend development
 - Node.js backend implementation
 
 
