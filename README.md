@@ -2,6 +2,12 @@
 
 A modern anime streaming platform powered by Node.js
 
+## ⚠️ Disclaimer
+
+1. This project is created for educational purposes only. Please respect intellectual property rights and terms of service when implementing similar projects.
+2. Only backend is completed frontend is still reaming
+   
+
 ## ✨ Features
 
 🔍 Smart Search
@@ -89,8 +95,6 @@ This project serves as a practical demonstration of:
 - Modern frontend development
 - Node.js backend implementation
 
-## ⚠️ Disclaimer
 
-This project is created for educational purposes only. Please respect intellectual property rights and terms of service when implementing similar projects.
 
 Happy Streaming! 🎉
