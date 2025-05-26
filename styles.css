@@ -1,0 +1,75 @@
+/* Common styles for all pages */
+body {
+  margin: 0;
+  padding: 20px;
+  background: #1a1a1a;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1, h2, h3 {
+  text-align: center;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background: #45a049;
+}
+
+/* Toast notification styles */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #333;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.toast.error {
+  background: #ff4444;
+}
+
+.toast.success {
+  background: #00c851;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+/* Episode list styles (common across pages) */
+.episode-list {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #333;
+  border-radius: 5px;
+  display: none;
+}
+
+.episode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}

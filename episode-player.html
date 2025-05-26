@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Episode Player</title>
+    <link rel="stylesheet" href="episodePlayerStyles.css">
+    <!-- <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .episode-info {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .back-button {
+            background: #2196F3;
+        }
+        .back-button:hover {
+            background: #0b7dda;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 1000;
+        }
+        .toast.error {
+            background: #ff4444;
+        }
+        .toast.success {
+            background: #00C851;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .episode-list {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #333;
+            border-radius: 5px;
+        }
+        .episode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .episode-item {
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+        .episode-item:hover {
+            background-color: #2980b9;
+        }
+        .episode-item.active {
+            background-color: #e74c3c;
+        }
+        h1, h2, h3 {
+            text-align: center;
+        }
+    </style> -->
+</head>
+<body>
+    <div id="toast" class="toast"></div>
+    <div class="container">
+        <h1>Anime Episode Player</h1>
+        
+        <div class="video-container">
+            <iframe id="video-frame" allowfullscreen></iframe>
+        </div>
+        
+        <div class="episode-info">
+            <h2 id="anime-title">Loading...</h2>
+            <div id="episode-title">Current Episode: -</div>
+        </div>
+        
+        <div class="controls">
+            <button id="prevButton">Previous Episode</button>
+            <button id="backButton" class="back-button">Back to Main</button>
+            <button id="nextButton">Next Episode</button>
+        </div>
+        
+        <div class="episode-list">
+            <h3>Episodes</h3>
+            <div id="episode-grid" class="episode-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentEpisodeIndex = 0;
+        let episodes = [];
+        let animeTitle = '';
+        
+        // DOM elements
+        const videoFrame = document.getElementById('video-frame');
+        const episodeTitle = document.getElementById('episode-title');
+        const animeTitleElement = document.getElementById('anime-title');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const backButton = document.getElementById('backButton');
+        const episodeGrid = document.getElementById('episode-grid');
+        
+        // Event listeners
+        prevButton.addEventListener('click', previousEpisode);
+        nextButton.addEventListener('click', nextEpisode);
+        backButton.addEventListener('click', () => window.location.href = 'index.html');
+        
+        // Load data from URL parameters
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const episodeIndex = urlParams.get('episode');
+            animeTitle = urlParams.get('title') || 'Unknown Anime';
+            
+            animeTitleElement.textContent = animeTitle;
+            
+            // Load episodes data
+            fetch('episodes.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load episodes data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.episodes || data.episodes.length === 0) {
+                        throw new Error('No episodes found');
+                    }
+                    
+                    episodes = data.episodes;
+                    displayEpisodeList(episodes);
+                    
+                    // Load the specified episode or the first one
+                    if (episodeIndex !== null && !isNaN(episodeIndex)) {
+                        loadEpisode(parseInt(episodeIndex));
+                    } else {
+                        loadEpisode(0);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast(error.message || 'Error loading episodes');
+                });
+        });
+        
+        // Load episode function
+        // Update the loadEpisode function in episode-player.html
+        
+        function loadEpisode(index) {
+            if (index >= 0 && index < episodes.length) {
+                currentEpisodeIndex = index;
+                const episode = episodes[currentEpisodeIndex];
+                episodeTitle.textContent = `Current Episode: ${episode.number}`;
+                
+                // Update active episode in the grid
+                document.querySelectorAll('.episode-item').forEach((item, i) => {
+                    if (i === index) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                
+                // If the episode already has a video URL, use it
+                if (episode.videoUrl) {
+                    videoFrame.src = episode.videoUrl;
+                    return;
+                }
+                
+                // Otherwise, fetch the video URL for this specific episode
+                const animeId = localStorage.getItem('currentAnimeId');
+                if (!animeId) {
+                    showToast('Error: Anime ID not found. Please go back and try again.');
+                    return;
+                }
+                
+                // Show loading message
+                videoFrame.src = '';
+                showToast('Loading episode...', 'info');
+                
+                // Use the episodeId from the episode object to construct the URL
+                const episodeId = episode.episodeId;
+                // Construct the URL in the format /watch/animeId?ep=episodeId
+                const episodeLink = `/watch/${animeId}?ep=${episodeId}`;
+                
+                // Call the API to get the video source for this episode
+                fetch('/load-episode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        animeId: animeId,
+                        episodeLink: episodeLink,
+                        episodeNumber: episode.number
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load episode');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.videoUrl) {
+                        // Update the episode in our local array
+                        episode.videoUrl = data.videoUrl;
+                        // Load the video
+                        videoFrame.src = data.videoUrl;
+                    } else {
+                        throw new Error(data.message || 'Failed to get video source');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast(error.message || 'Error loading episode video');
+                });
+            }
+        }
+        
+        // Navigation functions
+        function previousEpisode() {
+            if (currentEpisodeIndex > 0) {
+                loadEpisode(currentEpisodeIndex - 1);
+            } else {
+                showToast('This is the first episode');
+            }
+        }
+        
+        function nextEpisode() {
+            if (currentEpisodeIndex < episodes.length - 1) {
+                loadEpisode(currentEpisodeIndex + 1);
+            } else {
+                showToast('This is the last episode');
+            }
+        }
+        
+        // Display episode list
+        function displayEpisodeList(episodes) {
+            episodeGrid.innerHTML = '';
+            
+            episodes.forEach((episode, index) => {
+                const episodeItem = document.createElement('div');
+                episodeItem.className = 'episode-item';
+                episodeItem.textContent = `Episode ${episode.number}`;
+                episodeItem.onclick = () => loadEpisode(index);
+                episodeGrid.appendChild(episodeItem);
+            });
+        }
+        
+        // Toast notification function
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
